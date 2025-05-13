@@ -27,6 +27,18 @@ app.use("/classs", classRouter);
 const enrollRouter = require('./routes/Enrollments');
 app.use("/enrollments", enrollRouter);
 
+const activityRouter = require('./routes/Activities');
+app.use("/activities", activityRouter);
+
+const supplyRouter = require('./routes/Supplies');
+app.use("/supplies", supplyRouter);
+
+const healthRouter = require('./routes/HealthRecords');
+app.use("/healthRecords", healthRouter);
+
+const feedbackRouter = require('./routes/Feedbacks');
+app.use("/feedbacks", feedbackRouter);
+
 const signInRouter = require('./routes/SignIn');
 app.use("/signin", signInRouter);
 

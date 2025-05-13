@@ -43,6 +43,10 @@ import Kids from "layouts/kids";
 import Classs from "layouts/classs";
 import Meals from "layouts/meals";
 import Enrollments from "layouts/enrollments";
+import Activities from "layouts/activities";
+import Feedbacks from "layouts/feedbacks";
+import HealthRecords from "layouts/healthRecords";
+import Supplies from "layouts/supplies";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
@@ -106,6 +110,38 @@ const routes = [
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/enrollments",
     component: <Enrollments />,
+  },
+  {
+    type: "collapse",
+    name: "Activities",
+    key: "activities",
+    icon: <Icon fontSize="small">table_view</Icon>,
+    route: "/activities",
+    component: <Activities />,
+  },
+  {
+    type: "collapse",
+    name: "Feedbacks",
+    key: "feedbacks",
+    icon: <Icon fontSize="small">table_view</Icon>,
+    route: "/feedbacks",
+    component: <Feedbacks />,
+  },
+  {
+    type: "collapse",
+    name: "Health Records",
+    key: "healthRecords",
+    icon: <Icon fontSize="small">table_view</Icon>,
+    route: "/healthRecords",
+    component: <HealthRecords />,
+  },
+  {
+    type: "collapse",
+    name: "Supplies",
+    key: "supplies",
+    icon: <Icon fontSize="small">table_view</Icon>,
+    route: "/supplies",
+    component: <Supplies />,
   },
   {
     type: "collapse",
