@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Card from "@mui/material/Card";
-import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -15,21 +14,19 @@ import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 import routes from "routes";
 import bgImage from "assets/images/bg-presentation.jpg";
 import axios from "axios";
-import { useUser } from "context/UserContext";
-import { jwtDecode } from "jwt-decode";
 
-function SignInBasic() {
+function SignUp() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("User");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { setUser } = useUser();
   const navigate = useNavigate();
-
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   const handleTogglePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -37,39 +34,30 @@ function SignInBasic() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setSuccess("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post("http://localhost:3001/signin", {
+      const response = await axios.post("http://localhost:3001/users", {
+        username,
         email,
         password,
+        role,
       });
 
-      if (response.data.success) {
-        const token = response.data.token;
-        localStorage.setItem("token", token);
-
-        const decodedToken = jwtDecode(token);
-
-        const userData = {
-          role: decodedToken.role,
-          email: decodedToken.email,
-          username: decodedToken.username,
-        };
-
-        setUser(userData);
-
-        console.log("User data set:", userData);
-
-        if (decodedToken.role === "Admin") {
-          window.location.href = `http://localhost:3006/dashboard?token=${token}`;
-        } else {
-          navigate("/dashboard");
-        }
+      if (response.status === 201) {
+        setSuccess("Account created successfully. Redirecting...");
+        setTimeout(() => navigate("/pages/authentication/sign-in"), 3000);
       } else {
-        setError(response.data.message || "Sign-in failed.");
+        setError("Failed to create account.", setRole);
       }
     } catch (err) {
-      setError(err.response.data.message || "An error occurred during sign in. Please try again.");
-      console.error("Sign-in error:", err.response ? err.response.data : err.message);
+      setError(err.response?.data?.error || "An error occurred during signup. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -88,13 +76,13 @@ function SignInBasic() {
         sx={{
           backgroundImage: ({ functions: { linearGradient, rgba } }) =>
             `${linearGradient(
-              rgba("#FFC1CC", 0.8), // same pink gradient start as signup
-              rgba("#FFECB3", 0.8) // same yellow gradient end as signup
+              rgba("#FFC1CC", 0.8), // soft pink gradient start
+              rgba("#FFECB3", 0.8) // soft yellow gradient end
             )}, url(${bgImage})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          filter: "brightness(0.9)", // same as signup
+          filter: "brightness(0.9)",
         }}
       />
       <MKBox
@@ -104,7 +92,7 @@ function SignInBasic() {
         mx="auto"
         position="relative"
         zIndex={2}
-        display="flex" // center vertically/horizontally like signup
+        display="flex"
         alignItems="center"
         justifyContent="center"
       >
@@ -115,7 +103,7 @@ function SignInBasic() {
           alignItems="center"
           sx={{ maxWidth: 400 }}
         >
-          <Grid item xs={12} sm={12} md={12}>
+          <Grid item xs={12}>
             <Card sx={{ borderRadius: "20px", boxShadow: "0 10px 30px rgba(255, 192, 203, 0.4)" }}>
               <MKBox
                 variant="gradient"
@@ -128,7 +116,7 @@ function SignInBasic() {
                 mb={1}
                 textAlign="center"
                 sx={{
-                  background: "linear-gradient(45deg, #FF6F91, #FF9671)", // same warm gradient header
+                  background: "linear-gradient(45deg, #FF6F91, #FF9671)", // playful warm gradient header
                   color: "white",
                   fontFamily: "'Comic Sans MS', cursive, sans-serif",
                   fontWeight: "bold",
@@ -137,14 +125,31 @@ function SignInBasic() {
                   borderRadius: "20px 20px 0 0",
                 }}
               >
-                Sign in
+                Sign up
               </MKBox>
               <MKBox pt={4} pb={3} px={4}>
                 <MKBox component="form" role="form" onSubmit={handleSubmit}>
                   <MKBox mb={2}>
                     <MKInput
+                      type="text"
+                      label="Userame"
+                      fullWidth
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      sx={{
+                        "& input": {
+                          fontFamily: "'Comic Sans MS', cursive, sans-serif",
+                          color: "#333",
+                          fontWeight: 600,
+                        },
+                      }}
+                    />
+                  </MKBox>
+                  <MKBox mb={2}>
+                    <MKInput
                       type="email"
-                      label="Email"
+                      label="Parent's Email"
                       fullWidth
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -161,12 +166,11 @@ function SignInBasic() {
                   <MKBox mb={2}>
                     <MKInput
                       type={showPassword ? "text" : "password"}
-                      label="Password"
+                      label="Create Password"
                       fullWidth
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      autoComplete="new-password"
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
@@ -193,17 +197,22 @@ function SignInBasic() {
                       }}
                     />
                   </MKBox>
-                  <MKBox display="flex" alignItems="center" ml={-1}>
-                    <Switch checked={rememberMe} onChange={handleSetRememberMe} />
-                    <MKTypography
-                      variant="button"
-                      fontWeight="regular"
-                      color="text"
-                      onClick={handleSetRememberMe}
-                      sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-                    >
-                      &nbsp;&nbsp;Remember me
-                    </MKTypography>
+                  <MKBox mb={2}>
+                    <MKInput
+                      type={showPassword ? "text" : "password"}
+                      label="Confirm Password"
+                      fullWidth
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      sx={{
+                        "& input": {
+                          fontFamily: "'Comic Sans MS', cursive, sans-serif",
+                          color: "#333",
+                          fontWeight: 600,
+                        },
+                      }}
+                    />
                   </MKBox>
                   {error && (
                     <MKTypography
@@ -213,6 +222,16 @@ function SignInBasic() {
                       sx={{ fontFamily: "'Comic Sans MS', cursive, sans-serif" }}
                     >
                       {error}
+                    </MKTypography>
+                  )}
+                  {success && (
+                    <MKTypography
+                      variant="body2"
+                      color="success"
+                      mt={2}
+                      sx={{ fontFamily: "'Comic Sans MS', cursive, sans-serif" }}
+                    >
+                      {success}
                     </MKTypography>
                   )}
                   <MKBox mt={4} mb={1}>
@@ -233,7 +252,7 @@ function SignInBasic() {
                         },
                       }}
                     >
-                      {isLoading ? "Signing in..." : "Sign in"}
+                      {isLoading ? "Signing up..." : "Sign up"}
                     </MKButton>
                   </MKBox>
                   <MKBox mt={3} mb={1} textAlign="center">
@@ -242,10 +261,10 @@ function SignInBasic() {
                       color="text"
                       sx={{ fontFamily: "'Comic Sans MS', cursive, sans-serif" }}
                     >
-                      Don&apos;t have an account?{" "}
+                      Already have an account?{" "}
                       <MKTypography
                         component={Link}
-                        to="/pages/authentication/sign-up"
+                        to="/pages/authentication/sign-in"
                         variant="button"
                         fontWeight="bold"
                         color="secondary"
@@ -257,7 +276,7 @@ function SignInBasic() {
                           },
                         }}
                       >
-                        Sign up
+                        Sign in
                       </MKTypography>
                     </MKTypography>
                   </MKBox>
@@ -271,4 +290,4 @@ function SignInBasic() {
   );
 }
 
-export default SignInBasic;
+export default SignUp;

@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { HealthRecord, Kid } = require("../models");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // Get all healthRecords
 router.get("/", async (req, res) => {
@@ -12,16 +14,20 @@ router.get("/", async (req, res) => {
     }
 });
 
-// Get healthRecord by ID
-router.get("/:healthRecordID", async (req, res) => {
+// Get healthRecord by Kid ID
+router.get("/kid/:kidID", async (req, res) => {
     try {
-        const healthRecord = await HealthRecord.findByPk(req.params.healthRecordID, { include: Kid });
+        const kidID = req.params.kidID;
+        const healthRecord = await HealthRecord.findOne({
+            where: { healthRecordKidID: kidID },
+            include: Kid
+        });
         if (!healthRecord) {
-            return res.status(404).json({ error: "HealthRecord not found." });
+            return res.status(404).json({ error: "HealthRecord not found for this Kid." });
         }
         res.json(healthRecord);
     } catch (error) {
-        res.status(500).json({ error: "Failed to retrieve healthRecord." });
+        res.status(500).json({ error: "Failed to retrieve healthRecord by kidID." });
     }
 });
 
@@ -41,7 +47,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update healthRecord by ID
-router.put("/:healthRecordID", async (req, res) => {
+router.put("/:healthRecordID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { alergjite, medicalConditions, gjaku, healthRecordKidID } = req.body;
         const healthRecord = await HealthRecord.findByPk(req.params.healthRecordID);
@@ -56,7 +62,7 @@ router.put("/:healthRecordID", async (req, res) => {
 });
 
 // Delete healthRecord by ID
-router.delete("/:healthRecordID", async (req, res) => {
+router.delete("/:healthRecordID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const healthRecord = await HealthRecord.findByPk(req.params.healthRecordID);
         if (!healthRecord) {

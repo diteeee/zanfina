@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { Teacher } = require("../models");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // Get all teachers
 router.get("/", async (req, res) => {
@@ -26,10 +28,10 @@ router.get("/:teacherID", async (req, res) => {
 });
 
 // Create new teacher
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["Admin"]), async (req, res) => {
     try {
-        const { emri, mbiemri, nrTel, specializimi } = req.body;
-        const newTeacher = await Teacher.create({ emri, mbiemri, nrTel, specializimi });
+        const { emri, mbiemri, nrTel, specializimi, imageURL } = req.body;
+        const newTeacher = await Teacher.create({ emri, mbiemri, nrTel, specializimi, imageURL });
         res.status(201).json(newTeacher);
     } catch (error) {
         res.status(500).json({ error: "Failed to create teacher." });
@@ -37,14 +39,14 @@ router.post("/", async (req, res) => {
 });
 
 // Update teacher by ID
-router.put("/:teacherID", async (req, res) => {
+router.put("/:teacherID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
-        const { emri, mbiemri, nrTel, specializimi } = req.body;
+        const { emri, mbiemri, nrTel, specializimi, imageURL } = req.body;
         const teacher = await Teacher.findByPk(req.params.teacherID);
         if (!teacher) {
             return res.status(404).json({ error: "Teacher not found." });
         }
-        await teacher.update({ emri, mbiemri, nrTel, specializimi });
+        await teacher.update({ emri, mbiemri, nrTel, specializimi, imageURL });
         res.json(teacher);
     } catch (error) {
         res.status(500).json({ error: "Failed to update teacher." });
@@ -52,7 +54,7 @@ router.put("/:teacherID", async (req, res) => {
 });
 
 // Delete teacher by ID
-router.delete("/:teacherID", async (req, res) => {
+router.delete("/:teacherID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const teacher = await Teacher.findByPk(req.params.teacherID);
         if (!teacher) {

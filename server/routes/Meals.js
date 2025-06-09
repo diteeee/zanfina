@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { Meal } = require("../models");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // Get all meals
 router.get("/", async (req, res) => {
@@ -26,7 +28,7 @@ router.get("/:mealID", async (req, res) => {
 });
 
 // Create new meal
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { emri, pershkrimi, orari } = req.body;
         const newMeal = await Meal.create({ emri, pershkrimi, orari });
@@ -37,7 +39,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update meal by ID
-router.put("/:mealID", async (req, res) => {
+router.put("/:mealID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { emri, pershkrimi, orari } = req.body;
         const meal = await Meal.findByPk(req.params.mealID);
@@ -52,7 +54,7 @@ router.put("/:mealID", async (req, res) => {
 });
 
 // Delete meal by ID
-router.delete("/:mealID", async (req, res) => {
+router.delete("/:mealID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const meal = await Meal.findByPk(req.params.mealID);
         if (!meal) {

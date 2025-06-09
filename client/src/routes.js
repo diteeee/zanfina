@@ -41,8 +41,11 @@ import Icon from "@mui/material/Icon";
 
 // Pages
 import AboutUs from "layouts/pages/landing-pages/about-us";
-import ContactUs from "layouts/pages/landing-pages/contact-us";
+import Teachers from "pages/Presentation/sections/Teachers";
+import Meals from "pages/Presentation/sections/Meals";
+import HealthRecord from "pages/Presentation/sections/HealthRecord";
 import SignIn from "layouts/pages/authentication/sign-in";
+import SignUp from "layouts/pages/authentication/sign-in/sign-up";
 import SignOutPage from "pages/LandingPages/SignOut";
 
 const routes = [
@@ -53,17 +56,12 @@ const routes = [
     rowsPerColumn: 2,
     collapse: [
       {
-        name: "landing pages",
+        name: "learn more",
         collapse: [
           {
             name: "about us",
             route: "/pages/landing-pages/about-us",
             component: <AboutUs />,
-          },
-          {
-            name: "contact us",
-            route: "/pages/landing-pages/contact-us",
-            component: <ContactUs />,
           },
         ],
       },
@@ -82,6 +80,12 @@ const routes = [
             component: <SignIn />,
             key: "signin",
           },
+          {
+            name: "sign up",
+            route: "/pages/authentication/sign-up",
+            component: <SignUp />,
+            key: "signup",
+          },
         ],
       },
     ],
@@ -89,7 +93,26 @@ const routes = [
   {
     name: "sections",
     icon: <Icon>view_day</Icon>,
-    collapse: [],
+    collapse: [
+      {
+        name: "our teachers",
+        route: "/teachers",
+        component: <Teachers />,
+        key: "teachers",
+      },
+      {
+        name: "daily meals",
+        route: "/meals",
+        component: <Meals />,
+        key: "meals",
+      },
+      {
+        name: "kid health record",
+        route: "/healthrecord",
+        component: <HealthRecord />,
+        key: "healthrecord",
+      },
+    ],
   },
 ];
 

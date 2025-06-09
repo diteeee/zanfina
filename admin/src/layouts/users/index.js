@@ -7,10 +7,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -20,7 +16,6 @@ import MDTypography from "components/MDTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function Users() {
@@ -30,12 +25,21 @@ function Users() {
   const [dialogType, setDialogType] = useState("");
   const [userData, setUserData] = useState({
     userID: "",
-    emri: "",
-    mbiemri: "",
-    nrTel: "",
+    username: "",
     email: "",
     password: "",
     role: "User", // Default role
+  });
+
+  // Get token from localStorage (adjust if token is stored elsewhere)
+  const token = localStorage.getItem("token");
+
+  // Axios instance with Authorization header
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:3001",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   useEffect(() => {
@@ -43,8 +47,8 @@ function Users() {
   }, []);
 
   const fetchUsers = () => {
-    axios
-      .get("http://localhost:3001/users")
+    axiosInstance
+      .get("/users")
       .then((res) => {
         const users = res.data;
         const cols = [
@@ -95,8 +99,8 @@ function Users() {
   };
 
   const handleDelete = (userID) => {
-    axios
-      .delete(`http://localhost:3001/users/${userID}`)
+    axiosInstance
+      .delete(`/users/${userID}`)
       .then(() => {
         alert("User deleted.");
         fetchUsers();
@@ -107,12 +111,9 @@ function Users() {
   const handleSave = () => {
     const { userID, ...payload } = userData;
     const method = dialogType === "edit" ? "put" : "post";
-    const url =
-      dialogType === "edit"
-        ? `http://localhost:3001/users/${userID}`
-        : "http://localhost:3001/users";
+    const url = dialogType === "edit" ? `/users/${userID}` : "/users";
 
-    axios[method](url, payload)
+    axiosInstance[method](url, payload)
       .then(() => {
         alert(dialogType === "edit" ? "User updated." : "User added.");
         setOpenDialog(false);
@@ -163,7 +164,6 @@ function Users() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
 
       {/* Dialog for Add/Edit */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
@@ -191,7 +191,6 @@ function Users() {
             onChange={(e) => setUserData({ ...userData, password: e.target.value })}
             margin="normal"
           />
-
           <TextField
             fullWidth
             select

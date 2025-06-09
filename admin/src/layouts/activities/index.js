@@ -16,7 +16,6 @@ import MDTypography from "components/MDTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function Activities() {
@@ -33,14 +32,25 @@ function Activities() {
   });
   const [teachers, setTeachers] = useState([]);
 
+  // Get token from localStorage (adjust if token comes from elsewhere)
+  const token = localStorage.getItem("token");
+
+  // Axios instance with Bearer token header
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:3001",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   useEffect(() => {
     fetchActivities();
     fetchTeachers();
   }, []);
 
   const fetchActivities = () => {
-    axios
-      .get("http://localhost:3001/activities")
+    axiosInstance
+      .get("/activities")
       .then((res) => {
         const activities = res.data;
         const cols = [
@@ -75,8 +85,8 @@ function Activities() {
   };
 
   const fetchTeachers = () => {
-    axios
-      .get("http://localhost:3001/teachers")
+    axiosInstance
+      .get("/teachers")
       .then((res) => {
         setTeachers(res.data);
       })
@@ -96,8 +106,8 @@ function Activities() {
   };
 
   const handleDelete = (activityID) => {
-    axios
-      .delete(`http://localhost:3001/activities/${activityID}`)
+    axiosInstance
+      .delete(`/activities/${activityID}`)
       .then(() => {
         alert("Activity deleted.");
         fetchActivities();
@@ -108,12 +118,9 @@ function Activities() {
   const handleSave = () => {
     const { activityID, ...payload } = activityData;
     const method = dialogType === "edit" ? "put" : "post";
-    const url =
-      dialogType === "edit"
-        ? `http://localhost:3001/activities/${activityID}`
-        : "http://localhost:3001/activities";
+    const url = dialogType === "edit" ? `/activities/${activityID}` : "/activities";
 
-    axios[method](url, payload)
+    axiosInstance[method](url, payload)
       .then(() => {
         alert(dialogType === "edit" ? "Activity updated." : "Activity added.");
         setOpenDialog(false);
@@ -164,7 +171,6 @@ function Activities() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>{dialogType === "edit" ? "Edit Activity" : "Add Activity"}</DialogTitle>

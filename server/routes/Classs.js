@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { Class, Teacher } = require("../models");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // Get all classes
 router.get("/", async (req, res) => {
@@ -26,7 +28,7 @@ router.get("/:classID", async (req, res) => {
 });
 
 // Create new class
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { emri, orari, classTeacherID } = req.body;
         const teacher = await Teacher.findByPk(classTeacherID);
@@ -41,7 +43,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update class by ID
-router.put("/:classID", async (req, res) => {
+router.put("/:classID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { emri, orari, classTeacherID } = req.body;
         const classData = await Class.findByPk(req.params.classID);
@@ -56,7 +58,7 @@ router.put("/:classID", async (req, res) => {
 });
 
 // Delete class by ID
-router.delete("/:classID", async (req, res) => {
+router.delete("/:classID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const classData = await Class.findByPk(req.params.classID);
         if (!classData) {

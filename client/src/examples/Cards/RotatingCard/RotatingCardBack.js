@@ -42,11 +42,9 @@ function RotatingCard({ color, image, title, description, action }) {
       left={0}
       zIndex={5}
       sx={{
-        backgroundImage: ({ palette: { gradients }, functions: { linearGradient, rgba } }) =>
-          `${linearGradient(
-            rgba(gradients[color] ? gradients[color].main : gradients.info.main, 0.85),
-            rgba(gradients[color] ? gradients[color].main : gradients.info.main, 0.85)
-          )}, url(${image})`,
+        backgroundImage: () =>
+          // Custom gentle pastel gradient overlay for easier reading
+          `linear-gradient(135deg, rgba(255, 222, 233, 0.95) 0%, rgba(130, 200, 210, 0.95) 100%), url(${image})`,
         backgroundSize: "cover",
         backfaceVisibility: "hidden",
         transform: "rotateY(180deg)",

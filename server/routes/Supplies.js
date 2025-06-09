@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { Supply, Class } = require("../models");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // Get all supplys
 router.get("/", async (req, res) => {
@@ -26,7 +28,7 @@ router.get("/:supplyID", async (req, res) => {
 });
 
 // Create new supply
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { emri, sasia, supplyClassID } = req.body;
         const classInstance = await Class.findByPk(supplyClassID);
@@ -41,7 +43,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update supply by ID
-router.put("/:supplyID", async (req, res) => {
+router.put("/:supplyID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { emri, sasia, supplyClassID } = req.body;
         const supply = await Supply.findByPk(req.params.supplyID);
@@ -56,7 +58,7 @@ router.put("/:supplyID", async (req, res) => {
 });
 
 // Delete supply by ID
-router.delete("/:supplyID", async (req, res) => {
+router.delete("/:supplyID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const supply = await Supply.findByPk(req.params.supplyID);
         if (!supply) {

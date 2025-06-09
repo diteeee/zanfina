@@ -8,7 +8,7 @@
 
 Coded by www.creative-tim.com
 
- =========================================================
+==========================================================
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
@@ -23,7 +23,7 @@ import Icon from "@mui/material/Icon";
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
 
-function RotatingCardFront({ color, image, icon, title, description }) {
+function RotatingCardFront({ color, image, icon, title, description, customGradient }) {
   return (
     <MKBox
       display="flex"
@@ -36,10 +36,12 @@ function RotatingCardFront({ color, image, icon, title, description }) {
       zIndex={2}
       sx={{
         backgroundImage: ({ palette: { gradients }, functions: { linearGradient, rgba } }) =>
-          `${linearGradient(
-            rgba(gradients[color] ? gradients[color].main : gradients.info.main, 0.85),
-            rgba(gradients[color] ? gradients[color].main : gradients.info.main, 0.85)
-          )}, url(${image})`,
+          customGradient
+            ? `${customGradient}, url(${image})`
+            : `${linearGradient(
+                rgba(gradients[color] ? gradients[color].main : gradients.info.main, 0.85),
+                rgba(gradients[color] ? gradients[color].main : gradients.info.main, 0.85)
+              )}, url(${image})`,
         backgroundSize: "cover",
         backfaceVisibility: "hidden",
       }}
@@ -65,6 +67,7 @@ function RotatingCardFront({ color, image, icon, title, description }) {
 RotatingCardFront.defaultProps = {
   color: "info",
   icon: "",
+  customGradient: null,
 };
 
 // Typechecking props for the RotatingCardFront
@@ -83,6 +86,7 @@ RotatingCardFront.propTypes = {
   icon: PropTypes.node,
   title: PropTypes.node.isRequired,
   description: PropTypes.node.isRequired,
+  customGradient: PropTypes.string,
 };
 
 export default RotatingCardFront;

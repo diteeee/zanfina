@@ -1,6 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const { Enrollment, Kid, Class } = require("../models");
+const { Sequelize } = require("sequelize");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
+
+router.get("/stats/enrollments-by-date", async (req, res) => {
+  try {
+    const results = await Enrollment.findAll({
+      attributes: [
+        [Sequelize.fn('DATE', Sequelize.col('data')), 'date'], // Extract date only (yyyy-mm-dd)
+        [Sequelize.fn('COUNT', Sequelize.col('enrollmentID')), 'count']   // Count enrollments per date
+      ],
+      group: ['date'],
+      order: [['date', 'ASC']],
+      raw: true,
+    });
+
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve enrollment stats.", error });
+  }
+});
 
 // Get all enrollments
 router.get("/", async (req, res) => {
@@ -26,7 +47,7 @@ router.get("/:enrollmentID", async (req, res) => {
 });
 
 // Create new enrollment
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { data, enrollmentKidID, enrollmentClassID } = req.body;
         const kid = await Kid.findByPk(enrollmentKidID);
@@ -42,7 +63,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update enrollment by ID
-router.put("/:enrollmentID", async (req, res) => {
+router.put("/:enrollmentID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { data, enrollmentKidID, enrollmentClassID } = req.body;
         const enrollment = await Enrollment.findByPk(req.params.enrollmentID);
@@ -57,7 +78,7 @@ router.put("/:enrollmentID", async (req, res) => {
 });
 
 // Delete enrollment by ID
-router.delete("/:enrollmentID", async (req, res) => {
+router.delete("/:enrollmentID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const enrollment = await Enrollment.findByPk(req.params.enrollmentID);
         if (!enrollment) {

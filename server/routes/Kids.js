@@ -1,15 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const { Kid, User } = require("../models");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
-// Get all kids
+// Get all kids of a parent
 router.get("/", async (req, res) => {
-    try {
-        const kids = await Kid.findAll({ include: User });
-        res.json(kids);
-    } catch (error) {
-        res.status(500).json({ error: "Failed to retrieve kids." });
+  try {
+    const { parentID } = req.query;
+
+    let whereClause = {};
+    if (parentID) {
+      whereClause.parentID = parentID;
     }
+
+    const kids = await Kid.findAll({
+      where: whereClause,
+      include: User,
+    });
+    res.json(kids);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve kids." });
+  }
 });
 
 // Get kid by ID
@@ -41,7 +53,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update kid by ID
-router.put("/:kidID", async (req, res) => {
+router.put("/:kidID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { emri, mbiemri, ditelindja, parentID } = req.body;
         const kid = await Kid.findByPk(req.params.kidID);
@@ -56,7 +68,7 @@ router.put("/:kidID", async (req, res) => {
 });
 
 // Delete kid by ID
-router.delete("/:kidID", async (req, res) => {
+router.delete("/:kidID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const kid = await Kid.findByPk(req.params.kidID);
         if (!kid) {

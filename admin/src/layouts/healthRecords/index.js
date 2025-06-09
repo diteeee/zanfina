@@ -15,7 +15,6 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function HealthRecords() {
@@ -32,14 +31,25 @@ function HealthRecords() {
   });
   const [kids, setKids] = useState([]);
 
+  // Get token from localStorage (adjust if token comes from elsewhere)
+  const token = localStorage.getItem("token");
+
+  // Axios instance with Bearer token header
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:3001",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   useEffect(() => {
     fetchHealthRecords();
     fetchKids();
   }, []);
 
   const fetchHealthRecords = () => {
-    axios
-      .get("http://localhost:3001/healthRecords")
+    axiosInstance
+      .get("/healthRecords")
       .then((res) => {
         const healthRecords = res.data;
         const cols = [
@@ -74,8 +84,8 @@ function HealthRecords() {
   };
 
   const fetchKids = () => {
-    axios
-      .get("http://localhost:3001/kids")
+    axiosInstance
+      .get("/kids")
       .then((res) => setKids(res.data))
       .catch((err) => console.error("Failed to fetch kids:", err));
   };
@@ -99,8 +109,8 @@ function HealthRecords() {
   };
 
   const handleDelete = (healthRecordID) => {
-    axios
-      .delete(`http://localhost:3001/healthRecords/${healthRecordID}`)
+    axiosInstance
+      .delete(`/healthRecords/${healthRecordID}`)
       .then(() => {
         alert("Health record deleted.");
         fetchHealthRecords();
@@ -111,12 +121,9 @@ function HealthRecords() {
   const handleSave = () => {
     const { healthRecordID, ...payload } = recordData;
     const method = dialogType === "edit" ? "put" : "post";
-    const url =
-      dialogType === "edit"
-        ? `http://localhost:3001/healthRecords/${healthRecordID}`
-        : "http://localhost:3001/healthRecords";
+    const url = dialogType === "edit" ? `/healthRecords/${healthRecordID}` : "/healthRecords";
 
-    axios[method](url, payload)
+    axiosInstance[method](url, payload)
       .then(() => {
         alert(dialogType === "edit" ? "Health record updated." : "Health record added.");
         setOpenDialog(false);
@@ -167,7 +174,6 @@ function HealthRecords() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>

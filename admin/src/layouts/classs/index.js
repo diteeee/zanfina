@@ -18,7 +18,6 @@ import MDTypography from "components/MDTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function Classs() {
@@ -34,14 +33,25 @@ function Classs() {
   });
   const [teachers, setTeachers] = useState([]);
 
+  // Get token from localStorage
+  const token = localStorage.getItem("token");
+
+  // Axios instance with Bearer token header
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:3001",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   useEffect(() => {
     fetchClasss();
     fetchTeachers();
   }, []);
 
   const fetchClasss = () => {
-    axios
-      .get("http://localhost:3001/classs")
+    axiosInstance
+      .get("/classs")
       .then((res) => {
         const classs = res.data;
         const cols = [
@@ -70,12 +80,12 @@ function Classs() {
 
         setRows(formattedRows);
       })
-      .catch((err) => console.error("Failed to fetch classs:", err));
+      .catch((err) => console.error("Failed to fetch classes:", err));
   };
 
   const fetchTeachers = () => {
-    axios
-      .get("http://localhost:3001/teachers")
+    axiosInstance
+      .get("/teachers")
       .then((res) => setTeachers(res.data))
       .catch((err) => console.error("Failed to fetch teachers:", err));
   };
@@ -98,8 +108,8 @@ function Classs() {
   };
 
   const handleDelete = (classID) => {
-    axios
-      .delete(`http://localhost:3001/classs/${classID}`)
+    axiosInstance
+      .delete(`/classs/${classID}`)
       .then(() => {
         alert("Class deleted.");
         fetchClasss();
@@ -110,12 +120,9 @@ function Classs() {
   const handleSave = () => {
     const { classID, ...payload } = classData;
     const method = dialogType === "edit" ? "put" : "post";
-    const url =
-      dialogType === "edit"
-        ? `http://localhost:3001/classs/${classID}`
-        : "http://localhost:3001/classs";
+    const url = dialogType === "edit" ? `/classs/${classID}` : "/classs";
 
-    axios[method](url, payload)
+    axiosInstance[method](url, payload)
       .then(() => {
         alert(dialogType === "edit" ? "Class updated." : "Class added.");
         setOpenDialog(false);
@@ -166,9 +173,7 @@ function Classs() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
 
-      {/* Dialog for Add/Edit */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>{dialogType === "edit" ? "Edit Class" : "Add Class"}</DialogTitle>
         <DialogContent>
@@ -189,13 +194,13 @@ function Classs() {
           <TextField
             fullWidth
             select
-            variant="outlined"
+            label="Select Teacher"
             value={classData.classTeacherID}
             onChange={(e) => setClassData({ ...classData, classTeacherID: e.target.value })}
-            style={{ marginTop: 20 }}
+            margin="normal"
             SelectProps={{ native: true }}
           >
-            <option value="Select Teacher"></option>
+            <option value=""></option>
             {teachers.map((teacher) => (
               <option key={teacher.teacherID} value={teacher.teacherID}>
                 {teacher.emri}

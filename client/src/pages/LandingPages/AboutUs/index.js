@@ -1,18 +1,4 @@
-/*
-=========================================================
-* Material Kit 2 React - v2.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-kit-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
+import React from "react";
 // @mui material components
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -21,47 +7,28 @@ import Card from "@mui/material/Card";
 // Material Kit 2 React components
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
-import MKButton from "components/MKButton";
 
 // Material Kit 2 React examples
 import DefaultNavbar from "examples/Navbars/DefaultNavbar";
-import DefaultFooter from "examples/Footers/DefaultFooter";
-
-// About Us page sections
-import Information from "pages/LandingPages/AboutUs/sections/Information";
-import Team from "pages/LandingPages/AboutUs/sections/Team";
-import Featuring from "pages/LandingPages/AboutUs/sections/Featuring";
-import Newsletter from "pages/LandingPages/AboutUs/sections/Newsletter";
 
 // Routes
 import routes from "routes";
-import footerRoutes from "footer.routes";
 
 // Images
-import bgImage from "assets/images/bg-about-us.jpg";
+import bgImage from "assets/images/kindergarten-bg.jpg"; // Replace with a cheerful background related to kids or sunflowers
 
 function AboutUs() {
   return (
     <>
-      <DefaultNavbar
-        routes={routes}
-        action={{
-          type: "external",
-          route: "https://www.creative-tim.com/product/material-kit-react",
-          label: "free download",
-          color: "default",
-        }}
-        transparent
-        light
-      />
+      <DefaultNavbar routes={routes} />
       <MKBox
-        minHeight="75vh"
+        minHeight="50vh"
         width="100%"
         sx={{
           backgroundImage: ({ functions: { linearGradient, rgba }, palette: { gradients } }) =>
             `${linearGradient(
-              rgba(gradients.dark.main, 0.6),
-              rgba(gradients.dark.state, 0.6)
+              rgba(gradients.info.main, 0.4),
+              rgba(gradients.info.state, 0.4)
             )}, url(${bgImage})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -78,63 +45,138 @@ function AboutUs() {
             justifyContent="center"
             alignItems="center"
             flexDirection="column"
-            sx={{ mx: "auto", textAlign: "center" }}
+            sx={{ textAlign: "center" }}
           >
             <MKTypography
-              variant="h1"
+              variant="h2"
               color="white"
-              sx={({ breakpoints, typography: { size } }) => ({
-                [breakpoints.down("md")]: {
-                  fontSize: size["3xl"],
-                },
-              })}
+              gutterBottom
+              sx={{
+                fontFamily: "Comic Sans MS, cursive",
+                fontWeight: "bold",
+                textShadow: "2px 2px 4px rgba(0, 0, 0, 0.3)",
+              }}
             >
-              Work with an amazing design
+              Welcome to Sunflowers Kindergarten
             </MKTypography>
-            <MKTypography variant="body1" color="white" opacity={0.8} mt={1} mb={3}>
-              We&apos;re constantly trying to express ourselves and actualize our dreams. If you
-              have the opportunity to play this game
+            <MKTypography
+              variant="body1"
+              color="white"
+              opacity={0.9}
+              mt={1}
+              mb={3}
+              sx={{ fontFamily: "Comic Sans MS, cursive" }}
+            >
+              A place where learning blooms and childhood memories are made!
             </MKTypography>
-            <MKButton color="default" sx={{ color: ({ palette: { dark } }) => dark.main }}>
-              create account
-            </MKButton>
-            <MKTypography variant="h6" color="white" mt={8} mb={1}>
-              Find us on
-            </MKTypography>
-            <MKBox display="flex" justifyContent="center" alignItems="center">
-              <MKTypography component="a" variant="body1" color="white" href="#" mr={3}>
-                <i className="fab fa-facebook" />
-              </MKTypography>
-              <MKTypography component="a" variant="body1" color="white" href="#" mr={3}>
-                <i className="fab fa-instagram" />
-              </MKTypography>
-              <MKTypography component="a" variant="body1" color="white" href="#" mr={3}>
-                <i className="fab fa-twitter" />
-              </MKTypography>
-              <MKTypography component="a" variant="body1" color="white" href="#">
-                <i className="fab fa-google-plus" />
-              </MKTypography>
-            </MKBox>
           </Grid>
         </Container>
       </MKBox>
       <Card
         sx={{
-          p: 2,
+          p: 3,
           mx: { xs: 2, lg: 3 },
-          mt: -8,
-          mb: 4,
-          boxShadow: ({ boxShadows: { xxl } }) => xxl,
+          mt: -6,
+          mb: 6,
+          borderRadius: "20px",
+          boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.2)",
         }}
       >
-        <Information />
-        <Team />
-        <Featuring />
-        <Newsletter />
+        <MKBox p={3}>
+          <MKTypography
+            variant="h4"
+            textAlign="center"
+            gutterBottom
+            sx={{
+              fontFamily: "Comic Sans MS, cursive",
+              color: "#FFA000",
+            }}
+          >
+            About Us
+          </MKTypography>
+          <MKTypography
+            variant="body1"
+            textAlign="center"
+            color="text.secondary"
+            mb={3}
+            sx={{ fontFamily: "Comic Sans MS, cursive" }}
+          >
+            Sunflowers Kindergarten is dedicated to nurturing young minds with love, care, and an
+            engaging curriculum. Our mission is to create a safe and joyful environment where kids
+            can grow, learn, and play together.
+          </MKTypography>
+          <Grid container spacing={3} justifyContent="center">
+            <Grid item xs={12} md={6}>
+              <MKTypography
+                variant="body1"
+                color="text.primary"
+                textAlign="center"
+                sx={{ fontFamily: "Comic Sans MS, cursive" }}
+              >
+                🌻 <strong>Experienced and caring teachers</strong>
+              </MKTypography>
+              <MKTypography
+                variant="body1"
+                color="text.primary"
+                textAlign="center"
+                sx={{ fontFamily: "Comic Sans MS, cursive" }}
+              >
+                🌻 <strong>Fun and interactive learning</strong>
+              </MKTypography>
+              <MKTypography
+                variant="body1"
+                color="text.primary"
+                textAlign="center"
+                sx={{ fontFamily: "Comic Sans MS, cursive" }}
+              >
+                🌻 <strong>A nurturing environment for your child</strong>
+              </MKTypography>
+            </Grid>
+          </Grid>
+        </MKBox>
+        <MKBox p={3} mt={4}>
+          <MKTypography
+            variant="h4"
+            textAlign="center"
+            gutterBottom
+            sx={{
+              fontFamily: "Comic Sans MS, cursive",
+              color: "#FFA000",
+            }}
+          >
+            Daily Schedule
+          </MKTypography>
+          <Grid container spacing={3} justifyContent="center">
+            <Grid item xs={12} md={8}>
+              {[
+                { time: "08:00 AM", activity: "Arrival and Free Play" },
+                { time: "09:00 AM", activity: "Morning Circle Time" },
+                { time: "10:00 AM", activity: "Arts and Crafts" },
+                { time: "11:30 AM", activity: "Snack Time" },
+                { time: "12:00 PM", activity: "Outdoor Play" },
+                { time: "01:00 PM", activity: "Lunch and Rest" },
+                { time: "02:30 PM", activity: "Story Time" },
+                { time: "03:00 PM", activity: "Pickup" },
+              ].map(({ time, activity }, index) => (
+                <MKTypography
+                  key={index}
+                  variant="body1"
+                  color="text.primary"
+                  textAlign="center"
+                  mb={1}
+                  sx={{
+                    fontFamily: "Comic Sans MS, cursive",
+                    fontWeight: "bold",
+                    color: index % 2 === 0 ? "#4CAF50" : "#FFC107",
+                  }}
+                >
+                  🕒 <strong>{time}</strong> - {activity}
+                </MKTypography>
+              ))}
+            </Grid>
+          </Grid>
+        </MKBox>
       </Card>
-      <MKBox pt={6} px={1} mt={6}>
-        <DefaultFooter content={footerRoutes} />
-      </MKBox>
     </>
   );
 }

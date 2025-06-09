@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Button,
@@ -16,7 +17,6 @@ import MDTypography from "components/MDTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function Enrollments() {
@@ -32,16 +32,24 @@ function Enrollments() {
   });
   const [kids, setKids] = useState([]);
   const [classes, setClasses] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchEnrollments();
-    fetchKids();
-    fetchClasses();
-  }, []);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    } else {
+      fetchEnrollments();
+      fetchKids();
+      fetchClasses();
+    }
+  }, [navigate]);
 
   const fetchEnrollments = () => {
     axios
-      .get("http://localhost:3001/enrollments")
+      .get("http://localhost:3001/enrollments", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
       .then((res) => {
         const enrollments = res.data;
         setColumns([
@@ -74,14 +82,18 @@ function Enrollments() {
 
   const fetchKids = () => {
     axios
-      .get("http://localhost:3001/kids")
+      .get("http://localhost:3001/kids", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
       .then((res) => setKids(res.data))
       .catch((err) => console.error("Failed to fetch kids:", err));
   };
 
   const fetchClasses = () => {
     axios
-      .get("http://localhost:3001/classs")
+      .get("http://localhost:3001/classs", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
       .then((res) => setClasses(res.data))
       .catch((err) => console.error("Failed to fetch classes:", err));
   };
@@ -105,7 +117,9 @@ function Enrollments() {
 
   const handleDelete = (id) => {
     axios
-      .delete(`http://localhost:3001/enrollments/${id}`)
+      .delete(`http://localhost:3001/enrollments/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
       .then(() => {
         alert("Enrollment deleted.");
         fetchEnrollments();
@@ -121,7 +135,9 @@ function Enrollments() {
         ? `http://localhost:3001/enrollments/${enrollmentID}`
         : "http://localhost:3001/enrollments";
 
-    axios[method](url, payload)
+    axios[method](url, payload, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
       .then(() => {
         alert(dialogType === "edit" ? "Enrollment updated." : "Enrollment added.");
         setOpenDialog(false);
@@ -172,7 +188,6 @@ function Enrollments() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>{dialogType === "edit" ? "Edit Enrollment" : "Add Enrollment"}</DialogTitle>
@@ -190,7 +205,6 @@ function Enrollments() {
           <TextField
             fullWidth
             select
-            label="Kid"
             value={enrollmentData.enrollmentKidID}
             onChange={(e) =>
               setEnrollmentData({ ...enrollmentData, enrollmentKidID: e.target.value })
@@ -209,7 +223,6 @@ function Enrollments() {
           <TextField
             fullWidth
             select
-            label="Class"
             value={enrollmentData.enrollmentClassID}
             onChange={(e) =>
               setEnrollmentData({ ...enrollmentData, enrollmentClassID: e.target.value })

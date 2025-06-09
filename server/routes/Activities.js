@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { Activity, Teacher } = require("../models");
+const auth = require('../middleware/auth');
+const checkRole = require('../middleware/permission');
 
 // Get all activitys
 router.get("/", async (req, res) => {
@@ -26,7 +28,7 @@ router.get("/:activityID", async (req, res) => {
 });
 
 // Create new activity
-router.post("/", async (req, res) => {
+router.post("/", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { emri, pershkrimi, data, activityTeacherID } = req.body;
         const teacher = await Teacher.findByPk(activityTeacherID);
@@ -41,7 +43,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update activity by ID
-router.put("/:activityID", async (req, res) => {
+router.put("/:activityID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const { emri, pershkrimi, data, activityTeacherID } = req.body;
         const activity = await Activity.findByPk(req.params.activityID);
@@ -56,7 +58,7 @@ router.put("/:activityID", async (req, res) => {
 });
 
 // Delete activity by ID
-router.delete("/:activityID", async (req, res) => {
+router.delete("/:activityID", auth, checkRole(["Admin"]), async (req, res) => {
     try {
         const activity = await Activity.findByPk(req.params.activityID);
         if (!activity) {

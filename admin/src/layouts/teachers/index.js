@@ -16,7 +16,6 @@ import MDTypography from "components/MDTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function Teachers() {
@@ -30,6 +29,18 @@ function Teachers() {
     mbiemri: "",
     nrTel: "",
     specializimi: "",
+    imageURL: "",
+  });
+
+  // Get token from localStorage (adjust if token comes from elsewhere)
+  const token = localStorage.getItem("token");
+
+  // Axios instance with Bearer token header
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:3001",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   useEffect(() => {
@@ -37,8 +48,8 @@ function Teachers() {
   }, []);
 
   const fetchTeachers = () => {
-    axios
-      .get("http://localhost:3001/teachers")
+    axiosInstance
+      .get("/teachers")
       .then((res) => {
         const teachers = res.data;
         const cols = [
@@ -46,6 +57,7 @@ function Teachers() {
           { Header: "Last Name", accessor: "mbiemri", align: "left" },
           { Header: "Phone Number", accessor: "nrTel", align: "left" },
           { Header: "Specialization", accessor: "specializimi", align: "left" },
+          { Header: "Image", accessor: "imageURL", align: "left" },
           { Header: "Actions", accessor: "actions", align: "center" },
         ];
         setColumns(cols);
@@ -55,6 +67,13 @@ function Teachers() {
           mbiemri: teacher.mbiemri,
           nrTel: teacher.nrTel,
           specializimi: teacher.specializimi,
+          imageURL: (
+            <img
+              src={teacher.imageURL}
+              alt={`${teacher.emri} ${teacher.mbiemri}`}
+              style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8 }}
+            />
+          ),
           actions: (
             <div>
               <Button color="primary" onClick={() => handleEdit(teacher)}>
@@ -85,14 +104,15 @@ function Teachers() {
       mbiemri: "",
       nrTel: "",
       specializimi: "",
+      imageURL: "",
     });
     setDialogType("add");
     setOpenDialog(true);
   };
 
   const handleDelete = (teacherID) => {
-    axios
-      .delete(`http://localhost:3001/teachers/${teacherID}`)
+    axiosInstance
+      .delete(`/teachers/${teacherID}`)
       .then(() => {
         alert("Teacher deleted.");
         fetchTeachers();
@@ -103,12 +123,9 @@ function Teachers() {
   const handleSave = () => {
     const { teacherID, ...payload } = teacherData;
     const method = dialogType === "edit" ? "put" : "post";
-    const url =
-      dialogType === "edit"
-        ? `http://localhost:3001/teachers/${teacherID}`
-        : "http://localhost:3001/teachers";
+    const url = dialogType === "edit" ? `/teachers/${teacherID}` : "/teachers";
 
-    axios[method](url, payload)
+    axiosInstance[method](url, payload)
       .then(() => {
         alert(dialogType === "edit" ? "Teacher updated." : "Teacher added.");
         setOpenDialog(false);
@@ -159,7 +176,6 @@ function Teachers() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
 
       {/* Dialog for Add/Edit */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
@@ -191,6 +207,13 @@ function Teachers() {
             label="Specialization"
             value={teacherData.specializimi}
             onChange={(e) => setTeacherData({ ...teacherData, specializimi: e.target.value })}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Image"
+            value={teacherData.imageURL}
+            onChange={(e) => setTeacherData({ ...teacherData, imageURL: e.target.value })}
             margin="normal"
           />
         </DialogContent>

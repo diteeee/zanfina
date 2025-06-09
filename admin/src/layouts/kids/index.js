@@ -16,7 +16,6 @@ import MDTypography from "components/MDTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function Kids() {
@@ -33,14 +32,22 @@ function Kids() {
   });
   const [parents, setParents] = useState([]);
 
+  // Axios instance with auth header
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:3001",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`, // Replace "token" with the correct key if different
+    },
+  });
+
   useEffect(() => {
     fetchKids();
     fetchParents();
   }, []);
 
   const fetchKids = () => {
-    axios
-      .get("http://localhost:3001/kids")
+    axiosInstance
+      .get("/kids")
       .then((res) => {
         const kids = res.data;
         const cols = [
@@ -75,8 +82,8 @@ function Kids() {
   };
 
   const fetchParents = () => {
-    axios
-      .get("http://localhost:3001/users")
+    axiosInstance
+      .get("/users")
       .then((res) => {
         console.log("Fetched Parents:", res.data);
         setParents(res.data);
@@ -97,8 +104,8 @@ function Kids() {
   };
 
   const handleDelete = (kidID) => {
-    axios
-      .delete(`http://localhost:3001/kids/${kidID}`)
+    axiosInstance
+      .delete(`/kids/${kidID}`)
       .then(() => {
         alert("Kid deleted.");
         fetchKids();
@@ -109,10 +116,9 @@ function Kids() {
   const handleSave = () => {
     const { kidID, ...payload } = kidData;
     const method = dialogType === "edit" ? "put" : "post";
-    const url =
-      dialogType === "edit" ? `http://localhost:3001/kids/${kidID}` : "http://localhost:3001/kids";
+    const url = dialogType === "edit" ? `/kids/${kidID}` : "/kids";
 
-    axios[method](url, payload)
+    axiosInstance[method](url, payload)
       .then(() => {
         alert(dialogType === "edit" ? "Kid updated." : "Kid added.");
         setOpenDialog(false);
@@ -163,7 +169,6 @@ function Kids() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>{dialogType === "edit" ? "Edit Kid" : "Add Kid"}</DialogTitle>

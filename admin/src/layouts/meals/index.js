@@ -16,7 +16,6 @@ import MDTypography from "components/MDTypography";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function Meals() {
@@ -31,23 +30,32 @@ function Meals() {
     orari: "",
   });
 
+  // Get token from localStorage (adjust if token comes from elsewhere)
+  const token = localStorage.getItem("token");
+
+  // Axios instance with Bearer token header
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:3001",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   useEffect(() => {
     fetchMeals();
   }, []);
 
   const fetchMeals = () => {
-    axios
-      .get("http://localhost:3001/meals")
+    axiosInstance
+      .get("/meals")
       .then((res) => {
         const meals = res.data;
-        // define table columns
         setColumns([
           { Header: "Name", accessor: "emri", align: "left" },
           { Header: "Description", accessor: "pershkrimi", align: "left" },
           { Header: "Time", accessor: "orari", align: "left" },
           { Header: "Actions", accessor: "actions", align: "center" },
         ]);
-        // format rows
         setRows(
           meals.map((m) => ({
             emri: m.emri,
@@ -82,8 +90,8 @@ function Meals() {
   };
 
   const handleDelete = (mealID) => {
-    axios
-      .delete(`http://localhost:3001/meals/${mealID}`)
+    axiosInstance
+      .delete(`/meals/${mealID}`)
       .then(() => {
         alert("Meal deleted.");
         fetchMeals();
@@ -94,12 +102,9 @@ function Meals() {
   const handleSave = () => {
     const { mealID, ...payload } = mealData;
     const method = dialogType === "edit" ? "put" : "post";
-    const url =
-      dialogType === "edit"
-        ? `http://localhost:3001/meals/${mealID}`
-        : "http://localhost:3001/meals";
+    const url = dialogType === "edit" ? `/meals/${mealID}` : "/meals";
 
-    axios[method](url, payload)
+    axiosInstance[method](url, payload)
       .then(() => {
         alert(dialogType === "edit" ? "Meal updated." : "Meal added.");
         setOpenDialog(false);
@@ -150,9 +155,7 @@ function Meals() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
 
-      {/* Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>{dialogType === "edit" ? "Edit Meal" : "Add Meal"}</DialogTitle>
         <DialogContent>

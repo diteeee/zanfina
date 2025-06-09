@@ -15,7 +15,6 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function Supplies() {
@@ -31,14 +30,25 @@ function Supplies() {
   });
   const [classes, setClasses] = useState([]);
 
+  // Get token from localStorage (adjust if token comes from elsewhere)
+  const token = localStorage.getItem("token");
+
+  // Axios instance with Bearer token header
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:3001",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   useEffect(() => {
     fetchSupplies();
     fetchClasses();
   }, []);
 
   const fetchSupplies = () => {
-    axios
-      .get("http://localhost:3001/supplies")
+    axiosInstance
+      .get("/supplies")
       .then((res) => {
         const supplies = res.data;
         const cols = [
@@ -71,8 +81,8 @@ function Supplies() {
   };
 
   const fetchClasses = () => {
-    axios
-      .get("http://localhost:3001/classs")
+    axiosInstance
+      .get("/classs")
       .then((res) => setClasses(res.data))
       .catch((err) => console.error("Failed to fetch classes:", err));
   };
@@ -90,8 +100,8 @@ function Supplies() {
   };
 
   const handleDelete = (supplyID) => {
-    axios
-      .delete(`http://localhost:3001/supplies/${supplyID}`)
+    axiosInstance
+      .delete(`/supplies/${supplyID}`)
       .then(() => {
         alert("Supply deleted.");
         fetchSupplies();
@@ -102,12 +112,9 @@ function Supplies() {
   const handleSave = () => {
     const { supplyID, ...payload } = supplyData;
     const method = dialogType === "edit" ? "put" : "post";
-    const url =
-      dialogType === "edit"
-        ? `http://localhost:3001/supplies/${supplyID}`
-        : "http://localhost:3001/supplies";
+    const url = dialogType === "edit" ? `/supplies/${supplyID}` : "/supplies";
 
-    axios[method](url, payload)
+    axiosInstance[method](url, payload)
       .then(() => {
         alert(dialogType === "edit" ? "Supply updated." : "Supply added.");
         setOpenDialog(false);
@@ -158,7 +165,6 @@ function Supplies() {
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>{dialogType === "edit" ? "Edit Supply" : "Add Supply"}</DialogTitle>
